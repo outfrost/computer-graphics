@@ -9,44 +9,52 @@ typedef struct {
 	float y;
 } point2f;
 
+const int iterations = 4;
+bool * points = NULL;
+int cells = 0;
+
 float randf() {
 	return (float)rand() / (float)RAND_MAX;
 }
 
-bool* carpet(int iterations) {
-	int size = 1;
-	for (int i = iterations; i > 0; --i)
-		size *= 3;
+int powi(int base, int power) {
+	int result = 1;
+	for (; power > 0; --power)
+		result *= base;
+	return result;
+}
+
+void carpet(int iterations) {
+	cells = powi(3, iterations);
 	
-	bool* points = malloc(size * size * sizeof(bool));
-	for (int i = 0; i < size * size; ++i)
+	points = realloc(points, cells * cells * sizeof(bool));
+	for (int i = 0; i < cells * cells; ++i)
 		*(points+i) = true;
 	
-	for (int square_size = size; iterations > 0; --iterations) {
+	for (int square_size = cells; iterations > 0; --iterations) {
 		square_size /= 3;
-		for (int x = size - 1; x >= 0; --x) {
-			int y = size - 1;
-			for (int y = size - 1; y >= 0; --y) {
+		for (int x = cells - 1; x >= 0; --x) {
+			int y = cells - 1;
+			for (int y = cells - 1; y >= 0; --y) {
 				if ((x / square_size) % 3 == 1 && (y / square_size) % 3 == 1)
-					points[x * size + y] = false;
+					points[x * cells + y] = false;
 			}
 		}
 	}
 }
 
 void draw_square(point2f point, float size) {
-	float halfsize = size / 2;
 	float deviation = size / 4;
 	
 	glBegin(GL_POLYGON);
 	glColor3f(randf(), randf(), randf());
-	glVertex2f(point.x - halfsize + randf() * deviation, point.y - halfsize + randf() * deviation);
+	glVertex2f(point.x 	  + randf() * deviation, point.y	+ randf() * deviation);
 	glColor3f(randf(), randf(), randf());
-	glVertex2f(point.x + halfsize + randf() * deviation, point.y - halfsize + randf() * deviation);
+	glVertex2f(point.x + size + randf() * deviation, point.y	+ randf() * deviation);
 	glColor3f(randf(), randf(), randf());
-	glVertex2f(point.x + halfsize + randf() * deviation, point.y + halfsize + randf() * deviation);
+	glVertex2f(point.x + size + randf() * deviation, point.y + size + randf() * deviation);
 	glColor3f(randf(), randf(), randf());
-	glVertex2f(point.x - halfsize + randf() * deviation, point.y + halfsize + randf() * deviation);
+	glVertex2f(point.x 	  + randf() * deviation, point.y + size + randf() * deviation);
 	glEnd();
 }
 
@@ -54,18 +62,20 @@ void render_scene() {
 	// Clear the stage using the current clear colour
 	glClear(GL_COLOR_BUFFER_BIT);
 	
-	int iterations = 1
-	bool * points = carpet(iterations);
-	
-	for (int x = 0; x <  ; ++x)
+	for (int x = 0; x < cells; ++x) {
+		for (int y = 0; y < cells; ++y) {
+			if (points[x * cells + y])
+				draw_square((point2f) { (-50.0f + x * (100.0f / cells)), (-50.0f + y * (100.0f / cells)) }, 100.0f / cells);
+		}
+	}
 	
 	// Flush draw calls to execution
 	glFlush();
 }
 
 void init_render() {
-	// Set the clear colour to grey
-	glClearColor(0.5f, 0.5f, 0.5f, 1.0f);
+	// Set the clear colour to dark grey
+	glClearColor(0.2f, 0.2f, 0.2f, 1.0f);
 }
 
 void resize_stage(GLsizei width, GLsizei height) {
@@ -84,9 +94,9 @@ void resize_stage(GLsizei width, GLsizei height) {
 	aspect_ratio = (GLfloat)width / (GLfloat)height;
 	
 	if (width <= height)
-		glOrtho(-100.0, 100.0, -100.0/aspect_ratio, 100.0/aspect_ratio, 1.0, -1.0);
+		glOrtho(-65.0,65.0, -65.0/aspect_ratio, 65.0/aspect_ratio, 1.0, -1.0);
 	else
-		glOrtho(-100.0*aspect_ratio, 100.0*aspect_ratio, -100.0, 100.0, 1.0, -1.0);
+		glOrtho(-65.0*aspect_ratio, 65.0*aspect_ratio, -65.0, 65.0, 1.0, -1.0);
 	
 	// Set the coordinate system and bounding space again
 	glMatrixMode(GL_MODELVIEW);
@@ -97,6 +107,8 @@ int main(int argc, char** argv) {
 	glutInit(&argc, argv);
 	
 	srand(time(NULL));
+	
+	carpet(iterations);
 	
 	// Set display mode: single frame buffer, RGBA colour model
 	glutInitDisplayMode(GLUT_SINGLE | GLUT_RGBA);
