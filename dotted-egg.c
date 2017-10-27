@@ -13,24 +13,32 @@ point3f * get_vertex(int i, int k) {
 	return &(egg_vertices[i * EGG_SUBDIVISIONS + k]);
 }
 
-void egg_vertex(float u, float v, point3f * result) {
-	*result[0] = (- 90.0f * powf(u, 5.0f)
-		    + 225.0f * powf(u, 4.0f)
-		    - 270.0f * powf(u, 3.0f)
-		    + 180.0f * powf(u, 2.0f)
-		     - 45.0f * u) * cosf (M_PI * v);
-	*result[1] = 0.0f;
-	*result[2] = 0.0f;
+void create_vertex(float u, float v, point3f * result) {
+	(*result)[0] = (-  90.0f * powf(u, 5.0f)
+			+ 225.0f * powf(u, 4.0f)
+			- 270.0f * powf(u, 3.0f)
+			+ 180.0f * powf(u, 2.0f)
+			-  45.0f * u) * cosf (M_PI * v);
+	
+	(*result)[1] =    160.0f * powf(u, 4.0f)
+			- 320.0f * powf(u, 3.0f)
+			+ 160.0f * powf(u, 2.0f);
+	
+	(*result)[2] = (-  90.0f * powf(u, 5.0f)
+			+ 225.0f * powf(u, 4.0f)
+			- 270.0f * powf(u, 3.0f)
+			+ 180.0f * powf(u, 2.0f)
+			-  45.0f * u) * sinf(M_PI * v);
 }
 
 void compute_egg_vertices() {
 	egg_vertices = realloc(egg_vertices, EGG_SUBDIVISIONS * EGG_SUBDIVISIONS * sizeof(point3f));
 	
 	for (int i = 0; i < EGG_SUBDIVISIONS; ++i) {
-		float v = (1.0f / EGG_SUBDIVISIONS) * (i + 0.5f);
+		float u = (1.0f / EGG_SUBDIVISIONS) * i;
 		for (int k = 0; k < EGG_SUBDIVISIONS; ++k) {
-			float u = (1.0f / EGG_SUBDIVISIONS) * (k + 0.5f);
-			egg_vertex(u, v, get_vertex(i, k));
+			float v = (1.0f / EGG_SUBDIVISIONS) * k;
+			create_vertex(u, v, get_vertex(i, k));
 		}
 	}
 }
@@ -68,7 +76,7 @@ void draw_egg() {
 		for (int i = 0; i < EGG_SUBDIVISIONS; ++i) {
 			for (int k = 0; k < EGG_SUBDIVISIONS; ++k) {
 				point3f * vertex = get_vertex(i, k);
-				glVertex3f(*vertex[0], *vertex[1], *vertex[2]);
+				glVertex3f((*vertex)[0], (*vertex)[1], (*vertex)[2]);
 			}
 		}
 	glEnd();
@@ -110,9 +118,9 @@ void resize_stage(GLsizei width, GLsizei height) {
 	GLfloat aspect_ratio = (GLfloat)width / (GLfloat)height;
 	
 	if (width <= height)
-		glOrtho(-7.5, 7.5, -7.5/aspect_ratio, 7.5/aspect_ratio, 10.0, -10.0);
+		glOrtho(-17.5, 17.5, -17.5/aspect_ratio, 17.5/aspect_ratio, 10.0, -10.0);
 	else
-		glOrtho(-7.5*aspect_ratio, 7.5*aspect_ratio, -7.5, 7.5, 10.0, -10.0);
+		glOrtho(-17.5*aspect_ratio, 17.5*aspect_ratio, -17.5, 17.5, 10.0, -10.0);
 	
 	// Set the coordinate system and bounding space again
 	glMatrixMode(GL_MODELVIEW);
