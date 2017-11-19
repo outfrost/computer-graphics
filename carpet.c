@@ -3,11 +3,11 @@
 #include <stdbool.h>
 #include <time.h>
 
-//typedef float point2f[2];
-typedef struct {
-	float x;
-	float y;
-} point2f;
+typedef float point2f[2];
+//typedef struct {
+//	float x;
+//	float y;
+//} point2f;
 
 const int iterations = 4;
 bool * points = NULL;
@@ -48,13 +48,13 @@ void draw_square(point2f point, float size) {
 	
 	glBegin(GL_POLYGON);
 	glColor3f(randf(), randf(), randf());
-	glVertex2f(point.x 	  + randf() * deviation, point.y	+ randf() * deviation);
+	glVertex2f(point[0]	   + randf() * deviation, point[1]	+ randf() * deviation);
 	glColor3f(randf(), randf(), randf());
-	glVertex2f(point.x + size + randf() * deviation, point.y	+ randf() * deviation);
+	glVertex2f(point[0] + size + randf() * deviation, point[1]	+ randf() * deviation);
 	glColor3f(randf(), randf(), randf());
-	glVertex2f(point.x + size + randf() * deviation, point.y + size + randf() * deviation);
+	glVertex2f(point[0] + size + randf() * deviation, point[1] + size + randf() * deviation);
 	glColor3f(randf(), randf(), randf());
-	glVertex2f(point.x 	  + randf() * deviation, point.y + size + randf() * deviation);
+	glVertex2f(point[0]	   + randf() * deviation, point[1] + size + randf() * deviation);
 	glEnd();
 }
 
