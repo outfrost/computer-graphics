@@ -4,12 +4,22 @@
 #include <stdio.h>
 
 typedef float point3f[3];
+typedef struct {
+	int x;
+	int y;
+} pixel;
 
 const float AXIS_RADIUS = 5.0f;
 const float MIN_FOV_ORTHO = 10.0f;
 
 short viewmode = 0x1;
-GLfloat camera[] = {0.0f, 0.0f, 10.0f};
+short action_state = 0x0;
+
+pixel last_mouse_pos = (pixel){0, 0};
+pixel mouse_pos_delta = (pixel){0, 0};
+GLfloat degrees_per_pixel = 1.0f;
+
+GLdouble camera[] = {0.0f, 0.0f, 10.0f};
 
 void draw_axes() {
 	point3f x_axis_start = { -AXIS_RADIUS, 0.0f, 0.0f };
@@ -48,12 +58,14 @@ void render_scene() {
 	draw_axes();
 	
 /*	if (viewmode & 1<<2)
-		draw_egg_faces();
 	if (viewmode & 1<<1)
-		draw_egg_edges();
 	if (viewmode & 1<<0)
-		draw_egg_vertices();
 */	
+	if (action_state & 1<<0) {
+		glRotatef(mouse_pos_delta.x * degrees_per_pixel, 0.0f, 1.0f, 0.0f);
+		glRotatef(mouse_pos_delta.y * degrees_per_pixel, 1.0f, 0.0f, 0.0f);
+	}
+	
 	glColor3f(1.0f, 1.0f, 1.0f);
 	glutWireTeapot(3.0);
 	
@@ -86,17 +98,40 @@ void resize_stage(GLsizei width, GLsizei height) {
 */	
 	glMatrixMode(GL_MODELVIEW);
 	glLoadIdentity();
+	
+	degrees_per_pixel = 360.0f / (GLfloat)width;
 }
 
-void key_pressed(unsigned char keycode, int x, int y) {
-	if (keycode == 'p')
+void key_pressed(unsigned char key, int x, int y) {
+	if (key == 'p')
 		viewmode ^= 1<<0;
-	else if (keycode == 'w')
+	else if (key == 'w')
 		viewmode ^= 1<<1;
-	else if (keycode == 's')
+	else if (key == 's')
 		viewmode ^= 1<<2;
 	
 	render_scene();
+}
+
+void mouse_button_event(int button, int state, int x, int y) {
+	if (button == GLUT_LEFT_BUTTON) {
+		if (state == GLUT_DOWN) {
+			last_mouse_pos.x = x;
+			last_mouse_pos.y = y;
+			action_state |= 1<<0;
+		}
+		else {
+			action_state &= ~(1<<0);
+		}
+	}
+}
+
+void mouse_motion_event(int x, int y) {
+	if (action_state) {
+		mouse_pos_delta = (pixel){x - last_mouse_pos.x, y - last_mouse_pos.y};
+		last_mouse_pos = (pixel){x, y};
+		glutPostRedisplay();
+	}
 }
 
 char * get_gl_info() {
@@ -128,6 +163,8 @@ int main(int argc, char** argv) {
 	glutDisplayFunc(render_scene);
 	glutReshapeFunc(resize_stage);
 	glutKeyboardFunc(key_pressed);
+	glutMouseFunc(mouse_button_event);
+	glutMotionFunc(mouse_motion_event);
 	
 	init_render();
 	
