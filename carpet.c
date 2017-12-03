@@ -29,7 +29,7 @@ void carpet(int iterations) {
 	
 	points = realloc(points, cells * cells * sizeof(bool));
 	for (int i = 0; i < cells * cells; ++i)
-		*(points+i) = true;
+		points[i] = true;
 	
 	for (int square_size = cells; iterations > 0; --iterations) {
 		square_size /= 3;
