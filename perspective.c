@@ -23,6 +23,13 @@ GLdouble camera[] = {0.0f, 0.0f, 10.0f};
 
 GLfloat model_rotation[] = {0.0f, 0.0f};
 
+GLdouble fov_y = 70.0;
+GLdouble aspect_ratio = 1.0;
+
+void update_perspective() {
+	gluPerspective(fov_y, aspect_ratio, 1.0, 30.0);
+}
+
 void draw_axes() {
 	point3f x_axis_start = { -AXIS_RADIUS, 0.0f, 0.0f };
 	point3f x_axis_end = { AXIS_RADIUS, 0.0f, 0.0f };
@@ -66,9 +73,19 @@ void render_scene() {
 	if (action_state & 1<<0) {
 		model_rotation[0] += mouse_pos_delta.x * degrees_per_pixel;
 		model_rotation[1] += mouse_pos_delta.y * degrees_per_pixel;
-		glRotatef(model_rotation[0], 0.0f, 1.0f, 0.0f);
-		glRotatef(model_rotation[1], 1.0f, 0.0f, 0.0f);
 	}
+	if (action_state & 1<<1) {
+		glMatrixMode(GL_PROJECTION);
+		glLoadIdentity();
+
+		fov_y += mouse_pos_delta.y * degrees_per_pixel;
+		update_perspective();
+
+		glMatrixMode(GL_MODELVIEW);
+	}
+
+	glRotatef(model_rotation[0], 0.0f, 1.0f, 0.0f);
+	glRotatef(model_rotation[1], 1.0f, 0.0f, 0.0f);
 
 	glColor3f(1.0f, 1.0f, 1.0f);
 	glutWireTeapot(3.0);
@@ -91,15 +108,9 @@ void resize_stage(GLsizei width, GLsizei height) {
 	glMatrixMode(GL_PROJECTION);
 	glLoadIdentity();
 
-	gluPerspective(70.0, (GLdouble)width/(GLdouble)height, 1.0, 30.0);
+	aspect_ratio = (GLdouble)width/(GLdouble)height;
+	update_perspective();
 
-//	GLfloat aspect_ratio = (GLfloat)width / (GLfloat)height;
-
-/*	if (width <= height)
-		glOrtho(-MIN_FOV_ORTHO, MIN_FOV_ORTHO, -MIN_FOV_ORTHO/aspect_ratio, MIN_FOV_ORTHO/aspect_ratio, 128.0, -128.0);
-	else
-		glOrtho(-MIN_FOV_ORTHO*aspect_ratio, MIN_FOV_ORTHO*aspect_ratio, -MIN_FOV_ORTHO, MIN_FOV_ORTHO, 128.0, -128.0);
-*/
 	glMatrixMode(GL_MODELVIEW);
 	glLoadIdentity();
 
@@ -126,6 +137,16 @@ void mouse_button_event(int button, int state, int x, int y) {
 		}
 		else {
 			action_state &= ~(1<<0);
+		}
+	}
+	else if (button == GLUT_RIGHT_BUTTON) {
+		if (state == GLUT_DOWN) {
+			last_mouse_pos.x = x;
+			last_mouse_pos.y = y;
+			action_state |= 1<<1;
+		}
+		else {
+			action_state &= ~(1<<1);
 		}
 	}
 }
