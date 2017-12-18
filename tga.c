@@ -1,3 +1,5 @@
+#include <errno.h>
+
 #pragma pack(push, 1)
 typedef struct {
 	GLubyte id_length;
@@ -25,6 +27,7 @@ typedef struct {
 TGAimage* read_tga(const char* path) {
 	FILE* tga_file = fopen(path, "rb");
 	if (tga_file == NULL) {
+		fprintf(stderr, "Error %d opening texture file\n", errno);
 		return NULL;
 	}
 	
@@ -48,17 +51,22 @@ TGAimage* read_tga(const char* path) {
 		image_components = GL_LUMINANCE8;
 	}
 	else {
+		fprintf(stderr, "Unsupported TGA bpp format\n");
 		return NULL;
 	}
 	
 	unsigned long image_size = header.image_width * header.image_height * (header.image_bpp / 8);
 	
+	printf("Image size: %lu\n", image_size);
+	
 	GLbyte* bytes = malloc(image_size * sizeof(GLbyte));
 	if (bytes == NULL) {
+		fprintf(stderr, "Unable to allocate space for TGA pixel data: Error %d\n", errno);
 		return NULL;
 	}
 	
 	if (fread(bytes, image_size, 1, tga_file) != 1) {
+		fprintf(stderr, "Cannot read TGA pixel data (possibly a compressed image)");
 		free(bytes);
 		return NULL;
 	}
@@ -67,6 +75,7 @@ TGAimage* read_tga(const char* path) {
 	
 	TGAimage* image = malloc(sizeof(TGAimage));
 	if (image == NULL) {
+		fprintf(stderr, "Unable to allocate space for TGA struct: Error %d\n", errno);
 		return NULL;
 	}
 	

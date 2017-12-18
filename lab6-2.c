@@ -7,10 +7,10 @@ void draw_triangle() {
 	glBegin(GL_TRIANGLES);
 	glTexCoord2f(0.0f, 1.0f);
 	glVertex3f(-4.5f, -3.0f, 1.0f);
-	glTexCoord2f(0.5f, 0.0f);
-	glVertex3f(0.0f, 4.6f, -1.0f);
 	glTexCoord2f(1.0f, 1.0f);
 	glVertex3f(4.5f, -3.0f, 1.0f);
+	glTexCoord2f(0.5f, 0.0f);
+	glVertex3f(0.0f, 4.6f, -1.0f);
 	glEnd();
 }
 
@@ -19,9 +19,13 @@ void render_scene() {
 	
 	glLoadIdentity();
 	
+	glDisable(GL_TEXTURE_2D);
+	
 	look_at_origin();
 	draw_axes();
 	adjust_modelview_rotation();
+	
+	glEnable(GL_TEXTURE_2D);
 	
 	if (viewmode & 1<<2)
 		draw_triangle();
@@ -35,7 +39,7 @@ void render_scene() {
 	glutSwapBuffers();
 }
 
-void init_render() {
+int init_render() {
 	glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 	
 	GLfloat light0_ambient[] = {0.1f, 0.1f, 0.1f, 1.0f};
@@ -59,10 +63,17 @@ void init_render() {
 	glEnable(GL_NORMALIZE);
 	glEnable(GL_CULL_FACE);
 	
-	TGAimage* texture_ptr = read_tga("/home/outfrost/Code/Graphics/computer-graphics/sample.tga");
+	TGAimage* texture_ptr = read_tga("sample.tga");
 	if (texture_ptr != NULL) {
 		TGAimage texture = *texture_ptr;
-		glTexImage2D(GL_TEXTURE_2D, 0, texture.image_components, texture.header.image_width, texture.header.image_height, 0, texture.image_format, GL_UNSIGNED_BYTE, texture.bytes);
+		glTexImage2D(GL_TEXTURE_2D,
+					 0,
+					 texture.image_components,
+					 texture.header.image_width,
+					 texture.header.image_height,
+					 0, texture.image_format,
+					 GL_UNSIGNED_BYTE,
+					 texture.bytes);
 		free(texture.bytes);
 		
 		glEnable(GL_TEXTURE_2D);
@@ -72,8 +83,10 @@ void init_render() {
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 	}
 	else {
-		printf("Error opening texture file\n");
+		fprintf(stderr, "Could not read texture data\n");
+		return 1;
 	}
+	return 0;
 }
 
 int main(int argc, char** argv) {
@@ -92,8 +105,14 @@ int main(int argc, char** argv) {
 	glutMouseFunc(mouse_button_event);
 	glutMotionFunc(mouse_motion_event);
 	
-	init_render();
+	int init_result = init_render();
 	
-	glutMainLoop();
+	if (!init_result) {
+		glutMainLoop();
+	}
+	else {
+		return init_result;
+	}
+	
 	return 0;
 }
