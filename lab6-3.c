@@ -2,15 +2,51 @@
 #include "essential_3d.c"
 #include "tga.c"
 
-void draw_triangle() {
+void draw_tetrahedron() {
 	flat_color(1.0f, 1.0f, 1.0f, 1.0f);
+	
 	glBegin(GL_TRIANGLES);
+	
 	glTexCoord2f(0.0f, 1.0f);
-	glVertex3f(-4.5f, -3.0f, 1.0f);
+	glNormal3f(0.0f, -1.0f, 0.0f);
+	glVertex3f(-4.5f, -2.1666f, -2.1666f);
 	glTexCoord2f(1.0f, 1.0f);
-	glVertex3f(4.5f, -3.0f, 1.0f);
+	glNormal3f(0.0f, -1.0f, 0.0f);
+	glVertex3f(4.5f, -2.1666f, -2.1666f);
 	glTexCoord2f(0.5f, 0.0f);
-	glVertex3f(0.0f, 4.6f, -1.0f);
+	glNormal3f(0.0f, -1.0f, 0.0f);
+	glVertex3f(0.0f, -2.1666f, 4.3334f);
+	
+	glTexCoord2f(0.0f, 1.0f);
+	glNormal3f(-4.5f, 2.1666f, 2.1666f);
+	glVertex3f(-4.5f, -2.1666f, -2.1666f);
+	glTexCoord2f(1.0f, 1.0f);
+	glNormal3f(-4.5f, 2.1666f, 2.1666f);
+	glVertex3f(0.0f, -2.1666f, 4.3334f);
+	glTexCoord2f(0.5f, 0.0f);
+	glNormal3f(-4.5f, 2.1666f, 2.1666f);
+	glVertex3f(0.0f, 4.3334f, 0.0f);
+	
+	glTexCoord2f(0.0f, 1.0f);
+	glNormal3f(4.5f, 2.1666f, 2.1666f);
+	glVertex3f(0.0f, -2.1666f, 4.3334f);
+	glTexCoord2f(1.0f, 1.0f);
+	glNormal3f(4.5f, 2.1666f, 2.1666f);
+	glVertex3f(4.5f, -2.1666f, -2.1666f);
+	glTexCoord2f(0.5f, 0.0f);
+	glNormal3f(4.5f, 2.1666f, 2.1666f);
+	glVertex3f(0.0f, 4.3334f, 0.0f);
+	
+	glTexCoord2f(0.0f, 1.0f);
+	glNormal3f(0.0f, 2.1666f, -4.3334f);
+	glVertex3f(4.5f, -2.1666f, -2.1666f);
+	glTexCoord2f(1.0f, 1.0f);
+	glNormal3f(0.0f, 2.1666f, -4.3334f);
+	glVertex3f(-4.5f, -2.1666f, -2.1666f);
+	glTexCoord2f(0.5f, 0.0f);
+	glNormal3f(0.0f, 2.1666f, -4.3334f);
+	glVertex3f(0.0f, 4.3334f, 0.0f);
+	
 	glEnd();
 }
 
@@ -28,7 +64,7 @@ void render_scene() {
 	glEnable(GL_TEXTURE_2D);
 	
 	if (viewmode & 1<<2)
-		draw_triangle();
+		draw_tetrahedron();
 	if (viewmode & 1<<1)
 		
 	if (viewmode & 1<<0)

@@ -70,9 +70,9 @@ void adjust_modelview_rotation() {
 	if (action_state & 1<<0) {
 		model_rotation[0] += mouse_pos_delta.x * degrees_per_pixel;
 		model_rotation[1] += mouse_pos_delta.y * degrees_per_pixel;
-		glRotatef(model_rotation[0], 0.0f, 1.0f, 0.0f);
-		glRotatef(model_rotation[1], 1.0f, 0.0f, 0.0f);
 	}
+	glRotatef(model_rotation[0], 0.0f, 1.0f, 0.0f);
+	glRotatef(model_rotation[1], 1.0f, 0.0f, 0.0f);
 }
 
 void resize_stage(GLsizei width, GLsizei height) {
