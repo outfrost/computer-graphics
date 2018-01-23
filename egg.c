@@ -17,15 +17,6 @@ point3f * get_vertex_normal(point3f * vertex) {
 	return egg_normals + (vertex - egg_vertices);
 }
 
-float sgnf(float x) {
-	if (x > 0)
-		return 1.0f;
-	else if (x < 0)
-		return -1.0f;
-	else
-		return 0.0f;
-}
-
 void create_vertex(float u, float v, point3f * result, point3f * normal) {
 	(*result)[0] = (-  90.0f * powf(u, 5.0f)
 			+ 225.0f * powf(u, 4.0f)
@@ -82,10 +73,7 @@ void create_vertex(float u, float v, point3f * result, point3f * normal) {
 		(*normal)[1] *= -1.0f;
 		(*normal)[2] *= -1.0f;
 	}
-/*	(*normal)[0] *= -sgnf((*normal)[2]);
-	(*normal)[1] *= -sgnf((*normal)[2]);
-	(*normal)[2] *= -sgnf((*normal)[2]);
-*/}
+}
 
 void create_vertex_color(point3f * vertex, point3f * result) {
 	for (int i = 0; i < 3; ++i) {
@@ -143,42 +131,15 @@ void draw_egg_vertices() {
 }
 
 void edge(point3f * vertex, point3f * next_vertex) {
-//debug	printf("%ld %ld, %ld %ld\n", (vertex - egg_vertices)/EGG_SUBDIVISIONS, (vertex - egg_vertices)%EGG_SUBDIVISIONS, (next_vertex - egg_vertices)/EGG_SUBDIVISIONS, (next_vertex - egg_vertices)%EGG_SUBDIVISIONS);
-//	glVertex3f((*vertex)[0], (*vertex)[1], (*vertex)[2]);
-//	glVertex3f((*next_vertex)[0], (*next_vertex)[1], (*next_vertex)[2]);
 	vert(vertex);
 	vert(next_vertex);
 }
 
 void face(point3f * v1, point3f * v2, point3f * v3) {
-/*	point3f * v_color = get_vertex_color(v1);
-	glColor3f((*v_color)[0], (*v_color)[1], (*v_color)[2]);
-	glVertex3f((*v1)[0], (*v1)[1], (*v1)[2]);
-	v_color = get_vertex_color(v2);
-	glColor3f((*v_color)[0], (*v_color)[1], (*v_color)[2]);
-	glVertex3f((*v2)[0], (*v2)[1], (*v2)[2]);
-	v_color = get_vertex_color(v3);
-	glColor3f((*v_color)[0], (*v_color)[1], (*v_color)[2]);
-	glVertex3f((*v3)[0], (*v3)[1], (*v3)[2]);
-*/	vert(v1);
+	vert(v1);
 	vert(v2);
 	vert(v3);
 }
-
-/*void edge_n(point3f * vertex, point3f * normal) {
-	memcpy(mat_ambient, get_vertex_color(vertex), sizeof(point3f));
-	memcpy(mat_diffuse, get_vertex_color(vertex), sizeof(point3f));
-	memcpy(mat_specular, get_vertex_color(vertex), sizeof(point3f));
-	glMaterialfv(GL_FRONT, GL_AMBIENT, mat_ambient);
-	glMaterialfv(GL_FRONT, GL_DIFFUSE, mat_diffuse);
-	glMaterialfv(GL_FRONT, GL_SPECULAR, mat_specular);
-	glMaterialf(GL_FRONT, GL_SHININESS, mat_shininess);
-	
-	glVertex3f((*vertex)[0], (*vertex)[1], (*vertex)[2]);
-	glVertex3f((*vertex)[0] + (*normal)[0],
-		   (*vertex)[1] + (*normal)[1],
-		   (*vertex)[2] + (*normal)[2]);
-}*/
 
 void draw_egg_edges() {
 	glColor3f(1.0f, 1.0f, 0.5f);
@@ -188,8 +149,6 @@ void draw_egg_edges() {
 			i_next = 0;
 		for (int k = 0, k_next = 1; k < EGG_SUBDIVISIONS; ++k, ++k_next) {
 			point3f * vertex = get_vertex(i, k);
-//			point3f * normal = get_vertex_normal(vertex);
-//			edge_n(vertex, normal);
 			edge(vertex, get_vertex(i_next, k));
 			if (k_next == EGG_SUBDIVISIONS) {
 				edge(vertex, get_vertex(EGG_SUBDIVISIONS - i, 0));
